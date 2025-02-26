@@ -20,7 +20,7 @@ public class Player extends Sprite {
 
     // ECO Shield fields
     private boolean shieldActive = false;
-    private long shieldTimer = 0; // Duration in milliseconds
+    private long shieldTimer = 0; // Duration in milliseconds (5 seconds)
     private Bitmap shieldEffectBmp; // ECO Shield effect image
 
     public Player(Context context, Rect hitbox, Rect screen) {
@@ -36,8 +36,8 @@ public class Player extends Sprite {
         this.setImage(runningFrames[0]);
 
         scorePaint = new Paint();
-        scorePaint.setColor(Color.GRAY); // Score color changed to gray.
-        scorePaint.setTextSize(100);
+        scorePaint.setColor(Color.BLACK);
+        scorePaint.setTextSize(90);
         scorePaint.setTextAlign(Paint.Align.CENTER);
 
         // Load ECO Shield effect image.
@@ -88,30 +88,26 @@ public class Player extends Sprite {
 
     @Override
     public void draw(Canvas canvas, long elevation) {
+        // Draw the player's current frame.
         if (this.getImage() != null) {
             canvas.drawBitmap(this.getImage(), (float)this.getX(), (float)this.getY(), null);
         }
         // Draw the scoreboard at the top center.
         canvas.drawText("Score: " + score, screen.width() / 2, 100, scorePaint);
 
-        // If ECO Shield is active, draw the ECO Shield effect image scaled to the player's size.
+        // If ECO Shield is active, draw the ECO Shield effect merged with the player's sprite.
         if (shieldActive) {
             Rect hitbox = getHitbox();
-            int playerWidth = hitbox.width();
-            int playerHeight = hitbox.height();
-            // Scale the shield effect image to match player's size.
-            Bitmap scaledShieldEffect = Bitmap.createScaledBitmap(shieldEffectBmp, playerWidth, playerHeight, false);
-            // Calculate position to center the effect on the player.
-            int left = hitbox.centerX() - scaledShieldEffect.getWidth() / 2;
-            int top = hitbox.centerY() - scaledShieldEffect.getHeight() / 2;
-            canvas.drawBitmap(scaledShieldEffect, left, top, null);
-
-            // Draw the label "ecoshield_effect" above the player's hitbox.
+            // Scale the shield effect image to exactly match the player's dimensions.
+            Bitmap scaledShieldEffect = Bitmap.createScaledBitmap(shieldEffectBmp, hitbox.width(), hitbox.height(), false);
+            // Draw the shield effect at the same coordinates as the player's hitbox.
+            canvas.drawBitmap(scaledShieldEffect, hitbox.left, hitbox.top, null);
+            // Optionally, draw a label if desired.
             Paint labelPaint = new Paint();
-            labelPaint.setColor(Color.CYAN);
-            labelPaint.setTextSize(40);
+            labelPaint.setColor(Color.WHITE);
+            labelPaint.setTextSize(20);
             labelPaint.setTextAlign(Paint.Align.CENTER);
-            canvas.drawText("ecoshield_effect", hitbox.centerX(), top - 10, labelPaint);
+            canvas.drawText("Invincible", hitbox.centerX(), hitbox.top - 10, labelPaint);
         }
     }
 
@@ -136,7 +132,7 @@ public class Player extends Sprite {
         }
     }
 
-    // Activate the ECO Shield for a specified duration (e.g., when collecting ecoshield.png).
+    // Activate the ECO Shield for a specified duration (5 seconds).
     public void activateShield(long duration) {
         shieldActive = true;
         shieldTimer = duration;
